@@ -1,0 +1,17 @@
+[tool.poetry]
+name = 'canary'
+version = '0.1.0'
+description ='Simple command line tool that recursively transverses path given for all video files of a certain pixel height'
+authors = ["roboto84 <7658704+roboto84@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = '^3.8'
+pymediainfo = '5.0.3'
+python-dotenv = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+pytest = '^5.2'
+
+[build-system]
+requires = ['poetry-core>=1.0.0']
+build-backend = 'poetry.core.masonry.api'
