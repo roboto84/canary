@@ -1,8 +1,7 @@
 import sys
 from pathlib import Path
 from datetime import datetime
-from pprint import pprint
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from pymediainfo import MediaInfo
 
 
@@ -52,8 +51,8 @@ class Canary:
                     self.print_table_row(good_file_count, file_specification["file_name"],
                                          file_specification['file_extension'],
                                          file_specification['file_last_modification_date'],
-                                         file_specification["height"],
-                                         file_specification["file_size"])
+                                         file_specification['height'],
+                                         file_specification['file_size'])
                 else:
                     bad_file_count += 1
             except RuntimeError:
@@ -104,9 +103,17 @@ class Canary:
             print(f'   {error_report}')
         print('')
 
+    def get_iterable_file_list(self, files_path):
+        return filter(lambda p: p.suffix in self.get_media_extensions('video'), Path(files_path).glob('**/*'))
+
     @staticmethod
-    def get_iterable_file_list(files_path):
-        return filter(lambda p: p.suffix in {'.mp4', '.avi', '.webm'}, Path(files_path).glob("**/*"))
+    def get_media_extensions(media_type):
+        video_extensions = ['.mp4', '.avi', '.webm']
+        music_extensions = ['.mp3', '.wav', '.wma']
+        image_extensions = ['.jpg', '.png', '.bmp']
+        text_extensions = ['.txt']
+
+        return video_extensions
 
     @staticmethod
     def round_file_size(size):
