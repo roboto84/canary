@@ -7,7 +7,6 @@ authors = ["roboto84 <7658704+roboto84@users.noreply.github.com>"]
 [tool.poetry.dependencies]
 python = '^3.8'
 pymediainfo = '5.0.3'
-python-dotenv = "^0.15.0"
 
 [tool.poetry.dev-dependencies]
 pytest = '^5.2'

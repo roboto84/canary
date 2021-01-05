@@ -2,7 +2,8 @@
 canary
 =================
 
-Simple command line tool that recursively transverses path given for all video files of a certain pixel height
+Simple command line tool that recursively transverses path given for all video, image, or text files of a specified
+criteria.
 
 Installation
 ------------
