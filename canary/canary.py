@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from pymediainfo import MediaInfo
+from file_types import FileTypes
 
 
 class Canary:
@@ -128,9 +129,9 @@ class Canary:
 
     @staticmethod
     def get_media_extensions(media_type):
-        video_extensions = ['.mp4', '.avi', '.webm', '.mkv', '.mov', '.wmv']
-        image_extensions = ['.jpg', '.png', '.bmp']
-        text_extensions = ['.txt', '.xml', '.htm', '.html']
+        video_extensions = FileTypes.video()
+        image_extensions = FileTypes.image()
+        text_extensions = FileTypes.text()
         try:
             if media_type == 'video':
                 extensions = video_extensions
