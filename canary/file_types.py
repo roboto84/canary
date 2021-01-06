@@ -1,13 +1,15 @@
+from typing import List
+
 
 class FileTypes:
     @staticmethod
-    def video():
+    def video() -> List[str]:
         return ['.mp4', '.avi', '.webm', '.mkv', '.mov', '.wmv', '.mpg']
 
     @staticmethod
-    def image():
+    def image() -> List[str]:
         return ['.jpg', '.png', '.bmp']
 
     @staticmethod
-    def text():
+    def text() -> List[str]:
         return ['.txt', '.xml', '.htm', '.html']
