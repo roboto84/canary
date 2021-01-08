@@ -18,18 +18,9 @@ class Canary:
     def run(self) -> None:
         directory_recursive_file_list = self.get_iterable_file_list(self.files_path)
         file_processor = FileProcessor()
-
-        if self.media_type == 'video':
-            results = file_processor.print_video_file_list(directory_recursive_file_list, self.pixel_height,
-                                                           self.output_type)
-        elif self.media_type == 'image':
-            results = file_processor.print_video_file_list(directory_recursive_file_list, self.pixel_height,
-                                                           self.output_type)
-        else:
-            results = file_processor.print_video_file_list(directory_recursive_file_list, self.pixel_height,
-                                                           self.output_type)
-
-        self.print_report(self.output_type, self.files_path, results['good_file_count'], results['bad_file_count'],
+        results = file_processor.file_list_handler(directory_recursive_file_list, self.media_type, self.pixel_height,
+                                                   self.output_type)
+        self.print_report(self.output_type, self.files_path, results['criteria_pass_count'], results['criteria_fail_count'],
                           results['error_file_count'], results['processed_file_count'], self.error_status_list)
 
     def get_iterable_file_list(self, files_path: str) -> Iterator[Path]:
@@ -55,13 +46,13 @@ class Canary:
             exit()
 
     @staticmethod
-    def print_report(output_type: str, files_path: str, good_file_count: int, bad_file_count: int,
+    def print_report(output_type: str, files_path: str, criteria_pass_count: int, criteria_fail_count: int,
                      error_file_count: int, processed_file_count: int, error_status_list: List[str]) -> None:
         if output_type == 'table':
             print(f'\nPath Processed: {files_path}')
             print(f'Files Processed: {processed_file_count}')
-            print(f'Files that Match Criteria: {good_file_count}')
-            print(f'Files that don\'t Match Criteria: {bad_file_count}')
+            print(f'Files that Match Criteria: {criteria_pass_count}')
+            print(f'Files that don\'t Match Criteria: {criteria_fail_count}')
             print(f'Files that Produced Errors: {error_file_count}')
             for error_report in error_status_list:
                 print(f'   {error_report}')
