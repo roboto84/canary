@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import Iterator, List
 from pathlib import Path
@@ -6,25 +7,30 @@ from file_processor import FileProcessor
 
 
 class Canary:
-    def __init__(self, output_type: str, files_path: str, media_type: str, max_pixel_height: int) -> None:
+    def __init__(self, file_action_type: str, files_path: str, media_type: str, max_pixel_height: int) -> None:
+        if file_action_type != 'list' and file_action_type != 'table' and file_action_type != 'delete':
+            sys.exit('File action type must be one of the following values: list, table, delete')
+        if not os.path.isdir(files_path):
+            sys.exit(f'File path given, "{files_path}", is not valid')
+        if media_type != 'video' and media_type != 'image' and media_type != 'text':
+            sys.exit('Media type must be one of the following values: video, image, text')
         if media_type == 'video' and max_pixel_height == 0:
-            raise TypeError('If media type is video, a max pixel height greater than 0 must be given')
-        self.output_type = output_type
+            sys.exit('If media type is video, a max pixel height greater than 0 must be given')
+
+        self.output_type = file_action_type
         self.media_type = media_type
         self.pixel_height = max_pixel_height
-        self.error_status_list = []
         self.files_path = files_path
 
     def run(self) -> None:
-        directory_recursive_file_list = self.get_iterable_file_list(self.files_path)
+        directory_recursive_file_list = self.get_iterable_file_list(self.media_type, self.files_path)
         file_processor = FileProcessor()
         results = file_processor.file_list_handler(directory_recursive_file_list, self.media_type, self.pixel_height,
                                                    self.output_type)
-        self.print_report(self.output_type, self.files_path, results['criteria_pass_count'], results['criteria_fail_count'],
-                          results['error_file_count'], results['processed_file_count'], self.error_status_list)
+        self.print_report(self.output_type, self.files_path, results, file_processor.get_error_list())
 
-    def get_iterable_file_list(self, files_path: str) -> Iterator[Path]:
-        return filter(lambda p: p.suffix in self.get_media_extensions(self.media_type), Path(files_path).glob('**/*'))
+    def get_iterable_file_list(self, media_type, files_path: str) -> Iterator[Path]:
+        return filter(lambda p: p.suffix in self.get_media_extensions(media_type), Path(files_path).glob('**/*'))
 
     @staticmethod
     def get_media_extensions(media_type: str) -> List[str]:
@@ -42,18 +48,22 @@ class Canary:
                 raise TypeError('Media type must be video, image, or text')
             return extensions
         except TypeError as type_error:
-            print(f'Error: {type_error}')
-            exit()
+            sys.exit(f'Error: {type_error}')
 
     @staticmethod
-    def print_report(output_type: str, files_path: str, criteria_pass_count: int, criteria_fail_count: int,
-                     error_file_count: int, processed_file_count: int, error_status_list: List[str]) -> None:
-        if output_type == 'table':
+    def print_report(file_action_type: str, files_path: str, results: dict,
+                     error_status_list: List[str]) -> None:
+        if file_action_type == 'table' or file_action_type == 'delete':
             print(f'\nPath Processed: {files_path}')
-            print(f'Files Processed: {processed_file_count}')
-            print(f'Files that Match Criteria: {criteria_pass_count}')
-            print(f'Files that don\'t Match Criteria: {criteria_fail_count}')
-            print(f'Files that Produced Errors: {error_file_count}')
+
+            if file_action_type == 'table':
+                print(f'Files Processed: {results["processed_file_count"]}')
+                print(f'Files that Match Criteria: {results["criteria_pass_count"]}')
+                print(f'Files that don\'t Match Criteria: {results["criteria_fail_count"]}')
+            elif file_action_type == 'delete':
+                print(f'Files Deleted: {results["processed_file_count"]}')
+            print(f'Sum of File Sizes: {results["file_size_sum"]}')
+            print(f'Files that Produced Errors: {results["error_file_count"]}')
             for error_report in error_status_list:
                 print(f'   {error_report}')
             print('')
@@ -61,9 +71,9 @@ class Canary:
     @staticmethod
     def usage() -> None:
         print('Usage, supply the following commandline arguments:\n')
-        print('  Output type (list or table)')
-        print('  File path')
-        print('  Media type (video , image, text)')
+        print('  Action type (list, table, delete)')
+        print('  Existing File path')
+        print('  Media type (video, image, text)')
         print('  Pixel height max value (needed only if media type is video)')
         print('')
         print('ex: python canary.py table "/run/media/My Movies" video 420')
