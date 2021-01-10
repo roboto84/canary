@@ -81,8 +81,7 @@ class FileProcessor:
         }
 
     def keep_file(self, file_height: int, max_pixel_height: int) -> bool:
-        return file_height == self.NO_VAL or max_pixel_height == 0 or \
-               file_height < max_pixel_height
+        return file_height == self.NO_VAL or max_pixel_height == 0 or file_height < max_pixel_height
 
     def print_file_data(self, output_type: str, media_type: str, count: int, file_specification: dict) -> None:
         if output_type == 'table':
@@ -135,7 +134,7 @@ class FileProcessor:
             self.error_status_list.append(f'{file_path} caused delete error')
 
     @staticmethod
-    def format_spacing(text: str, spaces: int, align='left') -> str:
+    def format_spacing(text: str, spaces: int, align: str = 'left') -> str:
         if align == 'right':
             adjusted_text = text.rjust(spaces)[:spaces]
         else:
@@ -144,14 +143,14 @@ class FileProcessor:
 
     @staticmethod
     def readable_file_size(size: int) -> str:
-        if size - 1000 < 0:
+        if size - 1e3 < 0:
             string_file_size = f'{str(round(size / 1, 1))}  B'
-        elif size - 1000000 < 0:
-            string_file_size = f'{str(round(size / 1000, 1))} KB'
-        elif size - 1000000000 < 0:
-            string_file_size = f'{str(round(size / 1000000, 1))} MB'
+        elif size - 1e6 < 0:
+            string_file_size = f'{str(round(size / 1e3, 1))} KB'
+        elif size - 1e9 < 0:
+            string_file_size = f'{str(round(size / 1e6, 1))} MB'
         else:
-            string_file_size = f'{str(round(size / 1000000000, 2))} GB'
+            string_file_size = f'{str(round(size / 1e9, 2))} GB'
         return string_file_size
 
     @staticmethod

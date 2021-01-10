@@ -7,20 +7,23 @@ from file_processor import FileProcessor
 
 
 class Canary:
-    def __init__(self, file_action_type: str, files_path: str, media_type: str, max_pixel_height: int) -> None:
-        if file_action_type != 'list' and file_action_type != 'table' and file_action_type != 'delete':
-            sys.exit('File action type must be one of the following values: list, table, delete')
-        if not os.path.isdir(files_path):
-            sys.exit(f'File path given, "{files_path}", is not valid')
-        if media_type != 'video' and media_type != 'image' and media_type != 'text':
-            sys.exit('Media type must be one of the following values: video, image, text')
-        if media_type == 'video' and max_pixel_height == 0:
-            sys.exit('If media type is video, a max pixel height greater than 0 must be given')
-
+    def __init__(self, file_action_type: str, files_path: str, media_type: str, max_pixel_height: int = 0) -> None:
+        self.verify_inputs(file_action_type, files_path, media_type, max_pixel_height)
         self.output_type = file_action_type
         self.media_type = media_type
         self.pixel_height = max_pixel_height
         self.files_path = files_path
+
+    @staticmethod
+    def verify_inputs(file_action_type: str, files_path: str, media_type: str, max_pixel_height: int) -> None:
+        if file_action_type != 'list' and file_action_type != 'table' and file_action_type != 'delete':
+            sys.exit('File action type must be one of the following values: [list, table, delete]')
+        if not os.path.isdir(files_path):
+            sys.exit(f'File path given, "{files_path}", is not valid')
+        if media_type != 'video' and media_type != 'image' and media_type != 'text':
+            sys.exit('Media type must be one of the following values: [video, image, text]')
+        if type(max_pixel_height) is not int:
+            sys.exit('Max pixel height value must be an integer')
 
     def run(self) -> None:
         directory_recursive_file_list = self.get_iterable_file_list(self.media_type, self.files_path)
@@ -71,10 +74,10 @@ class Canary:
     @staticmethod
     def usage() -> None:
         print('Usage, supply the following commandline arguments:\n')
-        print('  Action type (list, table, delete)')
+        print('  Action type [list, table, delete]')
         print('  Existing File path')
-        print('  Media type (video, image, text)')
-        print('  Pixel height max value (needed only if media type is video)')
+        print('  Media type [video, image, text]')
+        print('  Pixel height max value (optional term for image or video search)')
         print('')
         print('ex: python canary.py table "/run/media/My Movies" video 420')
         print('')
@@ -85,7 +88,7 @@ if __name__ == '__main__':
         canary_job = Canary(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]))
         canary_job.run()
     elif len(sys.argv) == 4:
-        canary_job = Canary(sys.argv[1], sys.argv[2], sys.argv[3], 0)
+        canary_job = Canary(sys.argv[1], sys.argv[2], sys.argv[3])
         canary_job.run()
     else:
         Canary.usage()
