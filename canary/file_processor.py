@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Iterator
+from typing import Iterator, NoReturn, Callable
 from pathlib import Path
 from datetime import datetime
 from pymediainfo import MediaInfo
@@ -77,13 +77,13 @@ class FileProcessor:
             'criteria_fail_count': criteria_fail_count,
             'error_file_count': error_file_count,
             'processed_file_count': processed_file_count,
-            'file_size_sum': self.readable_file_size(file_size_sum)
+            'file_size_sum': self.readable_file_size(file_size_sum, self.file_size_comparator)
         }
 
     def keep_file(self, file_height: int, max_pixel_height: int) -> bool:
         return file_height == self.NO_VAL or max_pixel_height == 0 or file_height < max_pixel_height
 
-    def print_file_data(self, output_type: str, media_type: str, count: int, file_specification: dict) -> None:
+    def print_file_data(self, output_type: str, media_type: str, count: int, file_specification: dict) -> NoReturn:
         if output_type == 'table':
             self.print_table_row(media_type, count, file_specification['folder_name'],
                                  file_specification['file_name'], file_specification['file_extension'],
@@ -92,7 +92,7 @@ class FileProcessor:
         else:
             print(file_specification['complete_name'])
 
-    def print_output_header(self, media_type: str, output_type: str) -> None:
+    def print_output_header(self, media_type: str, output_type: str) -> NoReturn:
         if output_type == 'table':
             header = f'\n{self.format_spacing(" Num", 5)}' \
                      f'{self.format_spacing("Containing Folder Name", 30)}' \
@@ -108,13 +108,13 @@ class FileProcessor:
             print('\nATTENTION: Preparing to delete files that meet search criteria.')
 
     def print_table_row(self, media_type: str, count: int, folder_name: str, file_name: str, file_extension: str,
-                        last_modification_date: str, file_size: int, width: int, height: int) -> None:
+                        last_modification_date: str, file_size: int, width: int, height: int) -> NoReturn:
         row = f'{self.format_spacing(str(count), 5)}' \
               f'{self.format_spacing(folder_name, 30)}' \
               f'{self.format_spacing(f" {file_name}", 60)}' \
               f'{self.format_spacing(f"  {file_extension}", 8)}' \
               f'{self.format_spacing(last_modification_date, 13)}' \
-              f'{self.format_spacing(f"{self.readable_file_size(file_size)}", 8, "right")}'
+              f'{self.format_spacing(f"{self.readable_file_size(file_size, self.file_size_comparator)}", 8, "right")}'
 
         if media_type == 'image' or media_type == 'video':
             row = ''.join([row, self.format_spacing(f'{width} px', 9, "right"),
@@ -142,16 +142,30 @@ class FileProcessor:
         return adjusted_text
 
     @staticmethod
-    def readable_file_size(size: int) -> str:
-        if size - 1e3 < 0:
-            string_file_size = f'{str(round(size / 1, 1))}  B'
-        elif size - 1e6 < 0:
-            string_file_size = f'{str(round(size / 1e3, 1))} KB'
-        elif size - 1e9 < 0:
-            string_file_size = f'{str(round(size / 1e6, 1))} MB'
+    def readable_file_size(size: int, file_size_comparator: Callable[[int,  float], bool]) -> str:
+        byte = 1
+        kilobyte = 1e3
+        megabyte = 1e6
+        gigabyte = 1e9
+        decimal_places = 1
+
+        if file_size_comparator(size, kilobyte):
+            divisor = byte
+            unit_string_representation = ' B'
+        elif file_size_comparator(size, megabyte):
+            divisor = kilobyte
+            unit_string_representation = 'KB'
+        elif file_size_comparator(size, gigabyte):
+            divisor = megabyte
+            unit_string_representation = 'MB'
         else:
-            string_file_size = f'{str(round(size / 1e9, 2))} GB'
-        return string_file_size
+            divisor = gigabyte
+            unit_string_representation = 'GB'
+        return f'{str(round(size / divisor, decimal_places))} {unit_string_representation}'
+
+    @staticmethod
+    def file_size_comparator(file_size: int, max_value: float) -> bool:
+        return (file_size - max_value) < 0
 
     @staticmethod
     def print_delete_stop_gap():

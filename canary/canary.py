@@ -1,13 +1,13 @@
 import os
 import sys
-from typing import Iterator, List
+from typing import Iterator, List, NoReturn
 from pathlib import Path
 from file_types import FileTypes
 from file_processor import FileProcessor
 
 
 class Canary:
-    def __init__(self, file_action_type: str, files_path: str, media_type: str, max_pixel_height: int = 0) -> None:
+    def __init__(self, file_action_type: str, files_path: str, media_type: str, max_pixel_height: int = 0) -> NoReturn:
         self.verify_inputs(file_action_type, files_path, media_type, max_pixel_height)
         self.output_type = file_action_type
         self.media_type = media_type
@@ -15,7 +15,7 @@ class Canary:
         self.files_path = files_path
 
     @staticmethod
-    def verify_inputs(file_action_type: str, files_path: str, media_type: str, max_pixel_height: int) -> None:
+    def verify_inputs(file_action_type: str, files_path: str, media_type: str, max_pixel_height: int) -> NoReturn:
         if file_action_type != 'list' and file_action_type != 'table' and file_action_type != 'delete':
             sys.exit('File action type must be one of the following values: [list, table, delete]')
         if not os.path.isdir(files_path):
@@ -25,7 +25,7 @@ class Canary:
         if type(max_pixel_height) is not int:
             sys.exit('Max pixel height value must be an integer')
 
-    def run(self) -> None:
+    def run(self) -> NoReturn:
         directory_recursive_file_list = self.get_iterable_file_list(self.media_type, self.files_path)
         file_processor = FileProcessor()
         results = file_processor.file_list_handler(directory_recursive_file_list, self.media_type, self.pixel_height,
@@ -54,8 +54,7 @@ class Canary:
             sys.exit(f'Error: {type_error}')
 
     @staticmethod
-    def print_report(file_action_type: str, files_path: str, results: dict,
-                     error_status_list: List[str]) -> None:
+    def print_report(file_action_type: str, files_path: str, results: dict, error_status_list: List[str]) -> NoReturn:
         if file_action_type == 'table' or file_action_type == 'delete':
             print(f'\nPath Processed: {files_path}')
 
@@ -72,7 +71,7 @@ class Canary:
             print('')
 
     @staticmethod
-    def usage() -> None:
+    def usage() -> NoReturn:
         print('Usage, supply the following commandline arguments:\n')
         print('  Action type [list, table, delete]')
         print('  Existing File path')
