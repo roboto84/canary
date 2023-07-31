@@ -5,7 +5,7 @@
 </div>
 
 ## About
-`canary` is a simple command line tool that recursively transverses a path given for all video, image, or text files of a specified criteria.
+`canary` is a simple command line tool that recursively traverses a path given for all video, image, or text files of a specified criteria.
 
 ## Install
 This project is managed with [Python Poetry](https://github.com/python-poetry/poetry). With Poetry installed correctly, simply clone this project and install its dependencies:
